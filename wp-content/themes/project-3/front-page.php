@@ -293,6 +293,55 @@ $p_cap    = get_field('partners_caption',$home_id);
 
 
 
+<section class="fp-testimonials">
+  <h2>Testimonials</h2>
+
+  <?php
+  $q = new WP_Query([
+    'post_type'=>'testimonial',
+    'post_status'=>'publish',
+    'posts_per_page'=>6,
+    'orderby'=>'date',
+    'order'=>'DESC',
+  ]);
+  if ($q->have_posts()):
+    echo '<div class="fp-list">';
+    while($q->have_posts()): $q->the_post();
+      $title = get_the_title();
+      $content = get_the_content();
+      echo '<article class="fp-item">';
+      echo '<h4>'.esc_html($title).'</h4>';
+      echo '<div class="fp-content">'.wp_kses_post(wpautop($content)).'</div>';
+      echo '</article>';
+    endwhile;
+    echo '</div>';
+    wp_reset_postdata();
+  else:
+    echo '<p>No testimonials yet.</p>';
+  endif;
+  ?>
+
+  <?php if (isset($_GET['t_ok']) && $_GET['t_ok']==='1'): ?>
+    <div class="fp-notice">Thank you! Your testimonial was submitted for review.</div>
+  <?php endif; ?>
+
+  <div class="fp-form">
+    <?php if (is_user_logged_in()): ?>
+      <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+        <p><label>Title<br><input type="text" name="t_title" required></label></p>
+        <p><label>Message<br><textarea name="t_text" rows="6" required></textarea></label></p>
+        <?php wp_nonce_field('t_submit_action','t_nonce'); ?>
+        <input type="hidden" name="action" value="t_submit">
+        <p><button type="submit">Send</button></p>
+      </form>
+    <?php else: ?>
+      <p>Please <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>">log in</a> or
+      <a href="<?php echo esc_url(function_exists('wp_registration_url')? wp_registration_url(): (wp_login_url().'?action=register')); ?>">register</a> to submit a testimonial.</p>
+    <?php endif; ?>
+  </div>
+</section>
+
+
 
 
 

@@ -722,3 +722,78 @@ body {
   
   
   
+
+
+
+
+
+
+
+  :root{
+  --brand:#7a1712;
+  --cream:#fff6ec;
+  --card:#ffffff;
+  --border:#eadfce;
+  --text:#2b1a12;
+}
+
+.fp-testimonials{
+  max-width:900px;
+  margin:40px auto;
+  padding:24px;
+  background:var(--cream);
+  border:1px solid var(--border);
+  border-radius:16px;
+  color:var(--text);
+}
+
+.fp-testimonials h2{margin:0 0 12px;line-height:1.2}
+
+.fp-list{
+  display:grid;
+  grid-template-columns:1fr;   /* always single column */
+  gap:16px;
+}
+
+.fp-item{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+}
+
+.fp-item h4{margin:0 0 8px;font-size:18px}
+
+.fp-content p{margin:0 0 10px}
+
+.fp-notice{
+  margin-top:16px;
+  padding:12px;
+  background:#e8fff0;
+  border:1px solid #b7f1cc;
+  border-radius:10px;
+}
+
+.fp-form{margin-top:20px}
+
+.fp-form input,
+.fp-form textarea{
+  display:block;
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--card);
+}
+
+.fp-form button{
+  margin-top:8px;
+  padding:10px 16px;
+  border:0;
+  border-radius:999px;
+  background:var(--brand);
+  color:#fff;
+  cursor:pointer;
+}
+
+.fp-form button:hover{opacity:.92}
