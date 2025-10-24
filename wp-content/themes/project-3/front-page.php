@@ -291,6 +291,34 @@ $p_cap    = get_field('partners_caption',$home_id);
 </main>
 
 
+<?php if (is_user_logged_in()) { nocache_headers(); } ?>
+
+<section class="fp-testimonials">
+  <h2 class="fp-title">Testimonials</h2>
+
+  <?php if (isset($_GET['t_ok']) && $_GET['t_ok']==='1'): ?>
+    <div class="fp-notice">Thank you! Your testimonial was submitted for review.</div>
+  <?php endif; ?>
+
+  <?php if (is_user_logged_in()): ?>
+    <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" class="testimonial-form two-col">
+      <div class="field">
+        <label>Title<br><input type="text" name="t_title" required></label>
+      </div>
+      <div class="field">
+        <label>Message<br><textarea name="t_text" rows="8" required></textarea></label>
+      </div>
+      <?php wp_nonce_field('t_submit_action','t_nonce'); ?>
+      <input type="hidden" name="action" value="t_submit">
+      <div class="actions"><button type="submit">Send</button></div>
+    </form>
+  <?php else: ?>
+    <p>Please <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>">log in</a> or
+    <a href="<?php echo esc_url(function_exists('wp_registration_url')? wp_registration_url(): (wp_login_url().'?action=register')); ?>">register</a> to submit a testimonial.</p>
+  <?php endif; ?>
+</section>
+
+
 
 
 <section class="fp-testimonials">

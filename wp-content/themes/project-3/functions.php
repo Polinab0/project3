@@ -65,3 +65,7 @@ add_action('admin_post_nopriv_t_submit', function () {
     $register_url = esc_url(my_get_register_url());
     wp_die('Only logged-in users can submit testimonials.<br><br><a href="'.$login_url.'">Log in</a> or <a href="'.$register_url.'">register</a>.','Access denied',['response'=>403]);
 });
+
+
+
+
