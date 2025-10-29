@@ -5,12 +5,18 @@ Description: Website for project 3
 Version: 1.0
 */
 
-
+:root {
+  --bg:#842222;;
+  --text:#FFF8D8;
+  --muted:#FFFFFF;
+  --gf-brown:#3B2B25;
+  --gf-orange:#E58B41;
+}
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #842222;
+  background: #8e2b2b;;
 }
 
 
@@ -470,7 +476,7 @@ html,body{
 
 
 .blog-card{
-  background:#842222;
+  background:var(--brand);
   color:#FFF8D8;
   border-radius:18px;
   padding:20px;
@@ -524,7 +530,7 @@ html,body{
   display:inline-block;
   padding:8px 14px;
   background:#FFF8D8;
-  color:#7c2323;
+  color:var(--bg);
   border-radius:10px;
   font-weight:600;
   text-decoration:none;
@@ -803,13 +809,7 @@ body {
 
 
 /* halloween page */
-:root{
---gf-red:#A7332B;
---gf-beige:#F6E9DA;
---gf-brown:#3B2B25;
---gf-orange:#E58B41;
---gf-white:#fff;
-}
+
 .container{
 width:min(1100px,92%);
 margin:0 auto;
@@ -930,4 +930,119 @@ box-shadow:0 6px 16px rgba(0,0,0,.04);
 .gf-event__row{
 margin:.35rem 0;
 }
+
+/* 
+   ORDER PANEL 
+ */
+
+:root{
+
+  
+  --order-gap-top:56px;   
+
+
+  --hero-min-h:530px;    
+  --hero-shift:140px;      
+  --links-overlap:142px; 
+}
+.gf-orderpage{ background:var(--gf-red); color:var(--gf-brown); }
+
+.op-shell{ max-width:700px; width:92vw; margin-inline:auto; }
+.op-shell>*{ width:100%; }
+
+.gf-orderpage .container{ width:auto; margin:0; padding:0; }
+
+
+.op-hero{
+  margin-top:var(--order-gap-top);
+  min-height:var(--hero-min-h);
+  padding:24px 0 42px;             
+  position:relative;
+  background:center/cover no-repeat;
+  background-image:var(--op-bg);      
+}
+.op-hero__overlay{ position:absolute; inset:0; background:rgba(0,0,0,.25); }
+
+
+.op-hero .op-shell{
+  position:relative; z-index:2;
+  transform:translateY(var(--hero-shift));
+}
+
+
+.op-card{
+  display:flex; align-items:center; gap:16px;
+  background-color: #FFF8D8;
+  border-radius:18px;
+  padding:18px 22px;
+  box-shadow:0 12px 26px rgba(0,0,0,.25);
+}
+.op-card__title{ margin:2px 0 4px; font-size:24px; font-weight:800; }
+.op-card__addr{ margin:0; opacity:.9; }
+
+
+.op-tabs{
+  margin-top:8px;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:12px;
+
+}
+.op-tab{
+  display:grid; grid-template-rows:auto auto auto;
+  justify-items:center; align-items:center; gap:2px;
+  background-color: #FFF8D8;
+  border:0; border-radius:14px;
+  padding:10px 12px;
+  box-shadow:0 10px 20px rgba(0,0,0,.18);
+  cursor:default;
+}
+
+.op-tab__img{ width:26px; height:26px; object-fit:contain; }
+.op-tab__label{ font-size:14px; font-weight:700; line-height:1.1; }
+.op-tab__time{ font-size:12px; opacity:.85; }
+
+
+.op-links{
+  position:relative; z-index:3;
+  margin-top:calc(var(--links-overlap) * -1);
+  padding-top:0; padding-bottom:24px;
+}
+.op-row{
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%;
+  background-color: #FFF8D8;
+  color:var(--gf-brown);
+  text-decoration:none;
+  border-radius:14px;
+  padding:16px 18px;
+  margin:10px 0;
+  box-shadow:0 10px 22px rgba(0,0,0,.18);
+  position:relative;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.op-row:hover{ transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.22); background:#f2ecd6; }
+.op-row__label{ font-weight:800; letter-spacing:.2px; }
+
+.op-links .op-row:first-child{ margin-top:0; box-shadow:0 14px 28px rgba(0,0,0,.30); }
+
+.op-row::after{
+  content:"";
+  width:18px; height:18px; margin-left:12px; background:var(--gf-brown);
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z'/></svg>") no-repeat center/contain;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z'/></svg>") no-repeat center/contain;
+}
+
+
+@media (max-width:900px){
+  :root{
+    --hero-min-h:500px;
+    --hero-shift:36px;
+    --links-overlap:96px;
+  }
+  .op-shell{ max-width:92vw; }
+  .op-tabs{ grid-template-columns:1fr; gap:10px; }
+}
+
+
+
 

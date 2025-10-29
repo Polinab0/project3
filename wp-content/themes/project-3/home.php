@@ -2,6 +2,7 @@
 <main class="site-main">
 <div class="blog">
   <div class="blog__header"></div>
+  
 
   <?php
   $blog_page_id = get_option('page_for_posts');
