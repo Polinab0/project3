@@ -73,9 +73,9 @@ add_action('admin_post_nopriv_t_submit', function () {
 
 
 
-// === Создаём стандартные термины для таксономии menu_section, если их нет
+
 add_action('init', function () {
-  // убедись, что таксономия уже существует (её создал ACF)
+
   if (taxonomy_exists('menu_section')) {
     $terms = [
       'salty-food' => 'Salty food',
@@ -91,7 +91,7 @@ add_action('init', function () {
   }
 });
 
-// === На всякий случай: после активации темы — обновить правила ссылок
+
 add_action('after_switch_theme', function () {
   flush_rewrite_rules();
 });
@@ -109,7 +109,7 @@ add_action('wp_enqueue_scripts', function () {
 });
 
 
-// Підключення стилів/скриптів тільки на page-menu.php
+
 add_action('wp_enqueue_scripts', function () {
   if ( is_page_template('page-menu.php') ) {
 
@@ -124,67 +124,9 @@ add_action('wp_enqueue_scripts', function () {
 });
 
 
-
-
-// === AJAX: приём заказа без плагинов ===
-// (CPT 'orders' ты уже создала через CPT UI)
-
-add_action('wp_ajax_nopriv_place_order', 'my_place_order_handler');
-add_action('wp_ajax_place_order',        'my_place_order_handler');
-
-function my_place_order_handler(){
-  // защита
-  if (empty($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'place_order')) {
-    wp_send_json_error(['message' => 'Security check failed'], 403);
-  }
-  if (!empty($_POST['hp'])) { // honeypot
-    wp_send_json_error(['message' => 'Bot detected'], 400);
-  }
-
-  // данные формы
-  $full_name   = sanitize_text_field($_POST['full_name'] ?? '');
-  $phone       = sanitize_text_field($_POST['phone'] ?? '');
-  $email       = sanitize_email($_POST['email'] ?? '');
-  $address     = sanitize_text_field($_POST['address'] ?? '');
-  $order_total = sanitize_text_field($_POST['order_total'] ?? '€0.00');
-  $order_data  = wp_kses_post($_POST['order_data'] ?? '');  // список позиций строками
-  $order_json  = wp_unslash($_POST['order_json'] ?? '[]');  // JSON-строка корзины
-
-  if (!$full_name || !$phone || !$email || !$address) {
-    wp_send_json_error(['message' => 'Please fill all required fields'], 422);
-  }
-
-  // создаём запись типа 'orders'
-  $post_id = wp_insert_post([
-    'post_type'   => 'orders',
-    'post_status' => 'publish',
-    'post_title'  => 'Order — '.$full_name.' — '.$order_total.' — '.current_time('mysql'),
-  ], true);
-
-  if (is_wp_error($post_id)) {
-    wp_send_json_error(['message' => 'Failed to save order'], 500);
-  }
-
-  // сохраняем мета (имена совпадают с ACF Field Name)
-  update_post_meta($post_id, 'full_name',   $full_name);
-  update_post_meta($post_id, 'phone',       $phone);
-  update_post_meta($post_id, 'email',       $email);
-  update_post_meta($post_id, 'address',     $address);
-  update_post_meta($post_id, 'order_total', $order_total);
-  update_post_meta($post_id, 'order_data',  $order_data);
-  update_post_meta($post_id, 'order_json',  $order_json);
-
-  // письмо админу (в Local увидишь в MailPit)
-  $to       = get_option('admin_email');
-  $subject  = 'New Order from '.$full_name;
-  $headers  = ['Content-Type: text/plain; charset=UTF-8'];
-  $body     = "New order\n\n".
-              "Name: $full_name\nPhone: $phone\nEmail: $email\nAddress: $address\n\n".
-              "Total: $order_total\n\n".
-              "Items:\n$order_data\n\n".
-              "View in admin: ".admin_url('post.php?post='.$post_id.'&action=edit');
-
-  wp_mail($to, $subject, $body, $headers);
-
-  wp_send_json_success(['message' => 'Order saved', 'order_id' => $post_id]);
+function shop_enable_woocommerce_support() {
+    add_theme_support( 'woocommerce' );
 }
+add_action( 'after_setup_theme', 'shop_enable_woocommerce_support' );
+
+
