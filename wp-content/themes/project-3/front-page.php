@@ -5,6 +5,46 @@ Template Name: Front Page
 ?>
 
 <?php
+// Хелпер: аккуратно печатаем <img src="..."> + srcset/sizes/alt/любые атрибуты
+if (!function_exists('gf_img_tag')) {
+  function gf_img_tag($attachment_id, $size = 'large', $attrs = []) {
+    $attachment_id = (int) $attachment_id;
+    if (!$attachment_id) return '';
+
+    $src    = wp_get_attachment_image_url($attachment_id, $size);
+    if (!$src) return '';
+
+    $alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+    if ($alt === '' || $alt === null) {
+      $alt = get_the_title($attachment_id); // запасной alt
+    }
+
+    $srcset = wp_get_attachment_image_srcset($attachment_id, $size);
+    $sizes  = wp_get_attachment_image_sizes($attachment_id, $size);
+
+    // Если alt не задан в $attrs — подставим вычисленный alt
+    $attrs = (array)$attrs;
+    if (!array_key_exists('alt', $attrs)) {
+      $attrs['alt'] = $alt;
+    }
+
+    // Собираем произвольные атрибуты
+    $attr_html = '';
+    foreach ($attrs as $k => $v) {
+      if ($v === null) continue;
+      $attr_html .= ' ' . esc_attr($k) . '="' . esc_attr($v) . '"';
+    }
+
+    // Склеиваем тег
+    $tag  = '<img src="' . esc_url($src) . '"';
+    if ($srcset) $tag .= ' srcset="' . esc_attr($srcset) . '"';
+    if ($sizes)  $tag .= ' sizes="'  . esc_attr($sizes)  . '"';
+    $tag .= $attr_html . '>';
+
+    return $tag;
+  }
+}
+
 $home_id      = get_queried_object_id();
 $hero_title   = get_field('hero_title', $home_id);
 $hero_desc    = get_field('hero_desc', $home_id);
@@ -28,7 +68,7 @@ $hero_address = get_field('hero_address', $home_id);
        
         <aside class="hero__side hero__side--left">
           <?php if (!empty($icon_left['ID'])): ?>
-            <?php echo wp_get_attachment_image($icon_left['ID'], 'medium', false, ['class'=>'kid']); ?>
+            <?php echo gf_img_tag($icon_left['ID'], 'medium', ['class'=>'kid']); ?>
           <?php endif; ?>
           <div class="info__text">
             <?php if ($hero_time): ?><div class="info__time"><?php echo esc_html($hero_time); ?></div><?php endif; ?>
@@ -36,23 +76,21 @@ $hero_address = get_field('hero_address', $home_id);
           </div>
         </aside>
 
-      
         <div class="hero__center">
           <div class="phone-wrap">
             <?php if (!empty($hero_phone['ID'])): ?>
-              <?php echo wp_get_attachment_image($hero_phone['ID'], 'large', false, ['class'=>'phone']); ?>
+              <?php echo gf_img_tag($hero_phone['ID'], 'large', ['class'=>'phone', 'decoding'=>'async']); ?>
             <?php endif; ?>
 
             <?php if (!empty($hero_crois['ID'])): ?>
-              <?php echo wp_get_attachment_image($hero_crois['ID'], 'large', false, ['class'=>'croissant']); ?>
+              <?php echo gf_img_tag($hero_crois['ID'], 'large', ['class'=>'croissant', 'decoding'=>'async']); ?>
             <?php endif; ?>
           </div>
         </div>
 
-        
         <aside class="hero__side hero__side--right">
           <?php if (!empty($icon_right['ID'])): ?>
-            <?php echo wp_get_attachment_image($icon_right['ID'], 'medium', false, ['class'=>'chef']); ?>
+            <?php echo gf_img_tag($icon_right['ID'], 'medium', ['class'=>'chef']); ?>
           <?php endif; ?>
           <?php if ($hero_desc): ?>
             <p class="hero__desc"><?php echo esc_html($hero_desc); ?></p>
@@ -63,11 +101,7 @@ $hero_address = get_field('hero_address', $home_id);
     </div>
   </section>
 
-
-
-
 <?php
-
 $home_id   = get_queried_object_id();
 $g_title   = get_field('green_title', $home_id);
 $g_txt1    = get_field('green_text1', $home_id);
@@ -100,14 +134,11 @@ $g_btn_url = get_field('green_button_link',  $home_id);
   </div>
 </section>
 
-
 <?php
-
 $home_id  = get_queried_object_id();
 $t_title  = get_field('themes_title', $home_id);
 $t_p1     = get_field('themes_text1', $home_id);
 $t_p2     = get_field('themes_text2', $home_id);
-
 
 $tiles = get_posts([
   'post_type'      => 'theme_tile',
@@ -126,7 +157,6 @@ $tiles = get_posts([
       <p class="themes__p"><?php echo nl2br(esc_html($t_p2)); ?></p>
     </div>
 
-    
     <div class="themes__right">
       <div class="themes__grid">
         <?php foreach ($tiles as $post): setup_postdata($post); ?>
@@ -137,11 +167,9 @@ $tiles = get_posts([
           ?>
           <article class="tile">
             <div class="tile__img">
-              <?php
-                if (!empty($img['ID'])) {
-                  echo wp_get_attachment_image($img['ID'], 'large', false, ['loading'=>'lazy','decoding'=>'async']);
-                }
-              ?>
+              <?php if (!empty($img['ID'])): ?>
+                <?php echo gf_img_tag($img['ID'], 'large', ['loading'=>'lazy', 'decoding'=>'async']); ?>
+              <?php endif; ?>
             </div>
             <p class="tile__title"><?php echo esc_html($text); ?></p>
           </article>
@@ -150,7 +178,6 @@ $tiles = get_posts([
     </div>
   </div>
 </section>
-
 
 <?php
 // ===== Latest news  =====
@@ -166,11 +193,10 @@ $news = get_posts([
 ]);
 ?>
 
-<section class="news">
+<section class="news news--compact">
   <div class="news__inner">
     <h2 class="news__title"><?php echo esc_html($news_title); ?></h2>
 
-    
     <div class="news__viewport" id="newsViewport">
       <div class="news__track" id="newsTrack">
         <?php foreach ($news as $post): setup_postdata($post); ?>
@@ -182,12 +208,43 @@ $news = get_posts([
             $date_raw = (string) get_field('news_date', $id);
             $date_out = $date_raw ? date_i18n(get_option('date_format'), strtotime($date_raw)) : get_the_date('', $id);
             $tag      = (string) get_field('news_tag', $id);
+
+            $link_raw    = get_field('news_link', $id);
+            $link_url    = '';
+            $link_target = '';
+
+            if (is_array($link_raw) && !empty($link_raw['url'])) {
+              $link_url    = $link_raw['url'];
+              $link_target = $link_raw['target'] ?? '';
+            } elseif (is_string($link_raw) && $link_raw !== '') {
+              $link_url    = $link_raw;
+            } elseif ($link_raw instanceof WP_Post) {
+              $link_url    = get_permalink($link_raw);
+            } elseif (is_numeric($link_raw)) {
+              $link_url    = get_permalink((int)$link_raw);
+            }
           ?>
           <article class="news__card">
             <div class="news__img">
-              <?php if (!empty($img['ID'])) echo wp_get_attachment_image($img['ID'], 'large', false, ['loading'=>'lazy']); ?>
+              <?php if (!empty($img['ID'])): ?>
+                <?php echo gf_img_tag($img['ID'], 'medium_large', ['loading'=>'lazy', 'decoding'=>'async', 'alt'=>$heading]); ?>
+              <?php endif; ?>
             </div>
-            <?php if ($heading): ?><h3 class="news__heading"><?php echo esc_html($heading); ?></h3><?php endif; ?>
+
+            <?php if ($heading): ?>
+              <h3 class="news__heading">
+                <?php if ($link_url): ?>
+                  <a class="news__heading-link"
+                     href="<?php echo esc_url($link_url); ?>"
+                     <?php echo $link_target ? 'target="'.esc_attr($link_target).'" rel="noopener"' : ''; ?>>
+                    <?php echo esc_html($heading); ?>
+                  </a>
+                <?php else: ?>
+                  <?php echo esc_html($heading); ?>
+                <?php endif; ?>
+              </h3>
+            <?php endif; ?>
+
             <?php if ($excerpt): ?><p class="news__excerpt"><?php echo esc_html($excerpt); ?></p><?php endif; ?>
             <div class="news__meta"><time datetime="<?php echo esc_attr($date_raw ?: get_the_date('c', $id)); ?>"><?php echo esc_html($date_out); ?></time></div>
             <?php if ($tag): ?><div class="news__tag"><?php echo esc_html($tag); ?></div><?php endif; ?>
@@ -201,8 +258,6 @@ $news = get_posts([
     </div>
   </div>
 </section>
-
-
 
 <?php
 // ===== Blog teaser =====
@@ -227,7 +282,7 @@ $btn_link  = get_field('blog_teaser_button_link',  $home_id);
 
       <?php if (!empty($image['ID'])): ?>
         <div class="blogteaser__img">
-          <?php echo wp_get_attachment_image($image['ID'], 'large', false, ['loading'=>'lazy']); ?>
+          <?php echo gf_img_tag($image['ID'], 'large', ['loading'=>'lazy', 'decoding'=>'async']); ?>
         </div>
       <?php endif; ?>
     </div>
@@ -257,8 +312,6 @@ $btn_link  = get_field('blog_teaser_button_link',  $home_id);
   </div>
 </section>
 
-
-
 <?php
 // ===== Partners block  =====
 $home_id  = (int) get_option('page_on_front') ?: get_queried_object_id();
@@ -273,7 +326,7 @@ $p_cap    = get_field('partners_caption',$home_id);
 
     <div class="partners__frame">
       <?php if (!empty($p_image['ID'])): ?>
-        <?php echo wp_get_attachment_image($p_image['ID'], 'full', false, ['loading'=>'lazy']); ?>
+        <?php echo gf_img_tag($p_image['ID'], 'full', ['loading'=>'lazy', 'decoding'=>'async']); ?>
       <?php endif; ?>
       <?php if ($p_title): ?>
         <div class="partners__title"><?php echo esc_html($p_title); ?></div>
@@ -290,38 +343,9 @@ $p_cap    = get_field('partners_caption',$home_id);
 </section>
 </main>
 
-
 <?php if (is_user_logged_in()) { nocache_headers(); } ?>
 
-<section class="fp-testimonials">
-  <h2 class="fp-title">Testimonials</h2>
-
-  <?php if (isset($_GET['t_ok']) && $_GET['t_ok']==='1'): ?>
-    <div class="fp-notice">Thank you! Your testimonial was submitted for review.</div>
-  <?php endif; ?>
-
-  <?php if (is_user_logged_in()): ?>
-    <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" class="testimonial-form two-col">
-      <div class="field">
-        <label>Title<br><input type="text" name="t_title" required></label>
-      </div>
-      <div class="field">
-        <label>Message<br><textarea name="t_text" rows="8" required></textarea></label>
-      </div>
-      <?php wp_nonce_field('t_submit_action','t_nonce'); ?>
-      <input type="hidden" name="action" value="t_submit">
-      <div class="actions"><button type="submit">Send</button></div>
-    </form>
-  <?php else: ?>
-    <p>Please <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>">log in</a> or
-    <a href="<?php echo esc_url(function_exists('wp_registration_url')? wp_registration_url(): (wp_login_url().'?action=register')); ?>">register</a> to submit a testimonial.</p>
-  <?php endif; ?>
-</section>
-
-
-
-
-<section class="fp-testimonials">
+<section class="fp-testimonials1">
   <h2>Testimonials</h2>
 
   <?php
@@ -368,14 +392,5 @@ $p_cap    = get_field('partners_caption',$home_id);
     <?php endif; ?>
   </div>
 </section>
-
-
-
-
-
-
-
-
-
 
 <?php get_footer(); ?>

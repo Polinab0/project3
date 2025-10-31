@@ -120,6 +120,18 @@ $menu_items[] = $line;
 </div>
 
 </section>
+<script>
+(function () {
+  const unlock = () => {
+    document.documentElement.style.overflowY = 'auto';
+    document.body.style.overflowY = 'auto';
+    document.body.style.position = 'static';
+    document.body.style.height = 'auto';
+  };
+  unlock();
+  window.addEventListener('orientationchange', () => setTimeout(unlock, 250), {passive:true});
+})();
+</script>
 
 </main>
 
